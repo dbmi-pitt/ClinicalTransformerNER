@@ -244,6 +244,8 @@ class BioEval:
             else:
                 start_idx = cur_idx
                 end_idx = start_idx + 1
+
+                #DEBUGGING: print(f'\n\tstart_idx: {start_idx}\n\tgs_bio[start_idx]: {gs_bio[start_idx]}\n\tgs_bio: {gs_bio}')
                 _, cate = gs_bio[start_idx].strip().split('-')
                 while end_idx < llen and gs_bio[end_idx].strip() == f"i-{cate}":
                     end_idx += 1

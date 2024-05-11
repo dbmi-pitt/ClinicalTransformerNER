@@ -437,8 +437,8 @@ def evaluate(args, model, new_model_dir, features, epoch, global_step, best_scor
     y_true, y_pred, eval_loss = _eval(args, model, features)
     args.eval_tool.eval_mem(y_true, y_pred)
     # # # debug
-    # args.logger.debug(args.eval_tool.get_counts())
-    # args.logger.debug(args.eval_tool.get_performance())
+    args.logger.debug(args.eval_tool.get_counts())
+    args.logger.debug(args.eval_tool.get_performance())
     eval_metrix = args.eval_tool.get_performance()
     score_lvl, score_method, _ = args.model_selection_scoring.split("-")
     cur_score = eval_metrix['overall'][score_lvl][score_method]
@@ -447,6 +447,7 @@ def evaluate(args, model, new_model_dir, features, epoch, global_step, best_scor
     # select model based on best score
     # if best_score < cur_score:
     if cur_score - best_score > 1e-5:
+    ### if cur_score - best_score <= 0:  ## NOTE: needed when there is no improvement in the model because best_score is zero every epoch
         args.logger.info('''
         Global step: {}; 
         Epoch: {}; 
@@ -455,10 +456,13 @@ def evaluate(args, model, new_model_dir, features, epoch, global_step, best_scor
         full evaluation metrix: {}
         '''.format(global_step, epoch + 1, best_score, cur_score, eval_metrix))
         best_score = cur_score
+
+        print(f"Saving model with args {args}, model {model}, new_model_dir {new_model_dir}, global_step {global_step}, latest: {args.max_num_checkpoints}")
         save_model(args, model, new_model_dir, global_step, latest=args.max_num_checkpoints)
 
         # save model transformer core
         if args.save_model_core:
+            print("Saving model core!")
             save_only_transformer_core(args, model)
 
     return best_score, eval_loss
